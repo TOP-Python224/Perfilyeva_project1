@@ -8,7 +8,6 @@ from configparser import ConfigParser
 # импорт дополнительных модулей проекта
 import data
 
-
 def read_ini():
     # players.ini -> data.STATS
     players = ConfigParser()
@@ -16,14 +15,18 @@ def read_ini():
     for name in players.sections():
         dict_option = {}
         for option in players[name]:
+            # ИСПРАВИТЬ: некоторые значения должны быть интерпретированы как числа, а ещё одно — как логическое значение
+            # ИСПОЛЬЗОВАТЬ: в модуле configparser есть методы getint() и getboolean()
             dict_option[option] = players[name][option]
         data.STATS[name] = dict_option
     # saves.ini -> data.SAVES
     saves = ConfigParser()
     saves.read(data.saves_ini_path)
     for name_players in saves.sections():
+        # УДАЛИТЬ: лишний словарь, работайте сразу с глобальной переменной
         dict_option = {}
         for option in saves[name_players]:
+            # ИСПРАВИТЬ: название секции должны быть интерпретировано, как кортеж имён игроков, а значение по ключу turns — как список чисел
             dict_option[option] = saves[name_players][option]
         data.SAVES[name_players] = dict_option
 
@@ -38,9 +41,13 @@ def write_ini():
     # data.SAVES -> saves.ini
     saves = ConfigParser()
     for name_players in data.SAVES:
+        # ИСПРАВИТЬ: name_players — это кортеж, при записи у вас получится не предусмотренный формат названия секции, а строковое представление кортежа; аналогично со словарём data.SAVES[name_players]
         saves[name_players] = data.SAVES[name_players]
     with open(data.saves_ini_path, 'w', encoding='utf-8') as saves_files:
         saves.write(saves_files)
+
+
+# КОММЕНТАРИЙ: а если бы у вас перед глазами был актуальный документ Архитектура, то вы бы видели из какой структуры данных в какую вы проводите преобразования
 
 
 # тесты
